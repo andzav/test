@@ -148,7 +148,7 @@ router.route('/join')
                             if(index===-1){
                                 let teamN = result[0].participants.length % 2 === 0;
                                 result[0].participants.push({'player': email, 'team': teamN, 'host': false});
-                                result[0].entry_fee = result[0].entry_fee * (result[0].court.rent_price-1) / result[0].participants.length;
+                                result[0].entry_fee = result[0].entry_fee * (result[0].participants.length>1 ? result[0].participants.length-1 : 1) / result[0].participants.length;
                                 result[0].save(function (err) {
                                     if(err) res.status(400).send('Cant save you to event');
                                     else res.sendStatus(200);
