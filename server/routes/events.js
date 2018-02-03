@@ -1,8 +1,18 @@
 let express = require('express');
+let nodemailer = require('nodemailer');
+let validator = require("email-validator");
 let router = express.Router();
 let eventModel = require('../models/event.js');
 let userModel = require('../models/user.js');
 let courtModel = require('../models/court.js');
+
+let smtpTransport = nodemailer.createTransport({
+    service: "Gmail",
+    auth: {
+        user: process.env.service_email,
+        pass: process.env.service_password
+    }
+});
 
 router.route('/')
     .get(function(req, res){
@@ -11,12 +21,14 @@ router.route('/')
         if(req.query.code) query.code = req.query.code;
         else req.query.code = '';
 
+        if(req.query.email) query.participants.player = email;
+
         if(req.query.region) query.court.region = req.query.region;
 
         if(req.query.type!==undefined) query.court.type = req.query.type;
-        if(req.query.whs!==undefined) query.court.working_hours.start = {$gte: req.query.whs};
-        if(req.query.whe!==undefined) query.court.working_hours.end = {$lte: req.query.whe};
-        if(req.query.rpf!==undefined&&req.query.rpt!==undefined) query.court.rent_price = {$gte: req.query.rpf, $lte: req.query.rpt};
+        if(req.query.ds!==undefined) query.date.start = {$gte: req.query.ds};
+        if(req.query.de!==undefined) query.date.end = {$lte: req.query.de};
+        if(req.query.rpf!==undefined&&req.query.rpt!==undefined) query.entry_fee = {$gte: req.query.rpf, $lte: req.query.rpt};
         if(req.query.x!==undefined&&req.query.y!==undefined){
             query.court.location.x = {$gte: req.query.x-0.5, $lte: req.query.x+0.5};
             query.court.location.y = {$gte: req.query.y-0.5, $lte: req.query.y+0.5};
@@ -54,33 +66,51 @@ router.route('/')
                                             ]
                                         }, function (err, count) {
                                             if (count === 0) {
-                                                event.date.start = dStart;
-                                                event.date.end = dEnd;
-                                                info.participants.unshift(person.email);
-                                                if (info.participants.length > result[0].num_people) {
-                                                    let participants = info.participants.slice(0, result[0].num_people);
-                                                    event.participants = participants.map(function (el, index) {
-                                                        let teamN = index % 2 === 0;
-                                                        let hostS = index === 0;
-                                                        return {player: el, team: teamN, host: hostS};
-                                                    });
-                                                    event.save(function (err) {
-                                                        if (err) res.status(400).send("Error while saving");
-                                                        else res.status(200).send("Some people were removed due to place limitations");
-                                                    });
+                                                if (dStart.getHours() < event.court.working_hours.start || dEnd.getHours() > event.court.working_hours.end) {
+                                                    res.status(400).send('Court is closed in selected hours. Please reselect them');
                                                 } else {
-                                                    event.participants = info.participants.map(function (el, index) {
-                                                        let teamN = index % 2 === 0;
-                                                        let hostS = index === 0;
-                                                        return {player: el, team: teamN, host: hostS};
-                                                    });
-                                                    event.save(function (err) {
-                                                        if (err) {
-                                                            res.status(400).send("Error while saving");
-                                                            console.log(err);
-                                                        }
-                                                        else res.sendStatus(200);
-                                                    });
+                                                    event.date.start = dStart;
+                                                    event.date.end = dEnd;
+                                                    info.participants.unshift(person.email);
+                                                    if (info.participants.length > result[0].num_people) {
+                                                        let participants = info.participants.slice(0, result[0].num_people);
+                                                        event.entry_fee += event.court.rent_price/(participants.length>0 ? participants.length : 1);
+                                                        event.participants = participants.map(function (el, index) {
+                                                            if(validator.validate(el)){
+                                                                let mailOptions = {
+                                                                    from: process.env.service_email,
+                                                                    to: el,
+                                                                    subject: 'You have been invited to event hosted by '+person.email,
+                                                                    text: 'You have been invited to event hosted by '+person.email+'. Visit passion.com for more info'
+                                                                };
+
+                                                                smtpTransport.sendMail(mailOptions, (err) => {
+                                                                    if (err) console.log(error);
+                                                                });
+                                                            }
+
+                                                            let teamN = index % 2 === 0;
+                                                            let hostS = index === 0;
+                                                            return {player: el, team: teamN, host: hostS};
+                                                        });
+                                                        event.save(function (err) {
+                                                            if (err) res.status(400).send("Error while saving");
+                                                            else res.status(200).send("Some people were removed due to place limitations");
+                                                        });
+                                                    } else {
+                                                        event.participants = info.participants.map(function (el, index) {
+                                                            let teamN = index % 2 === 0;
+                                                            let hostS = index === 0;
+                                                            return {player: el, team: teamN, host: hostS};
+                                                        });
+                                                        event.save(function (err) {
+                                                            if (err) {
+                                                                res.status(400).send("Error while saving");
+                                                                console.log(err);
+                                                            }
+                                                            else res.sendStatus(200);
+                                                        });
+                                                    }
                                                 }
                                             } else {
                                                 res.status(400).send("Sorry, this dates are already taken")
@@ -118,6 +148,7 @@ router.route('/join')
                             if(index===-1){
                                 let teamN = result[0].participants.length % 2 === 0;
                                 result[0].participants.push({'player': email, 'team': teamN, 'host': false});
+                                result[0].entry_fee = result[0].entry_fee * (result[0].court.rent_price-1) / result[0].participants.length;
                                 result[0].save(function (err) {
                                     if(err) res.status(400).send('Cant save you to event');
                                     else res.sendStatus(200);
@@ -150,7 +181,7 @@ router.route('/submitResult')
                             userModel.find({'email': { $in: winners}}, function (err, result) {
                                 if(err||result.length<1) res.status(400).send('Cant update ratings now');
                                 else{
-                                    results.forEach(function (el) {
+                                    result.forEach(function (el) {
                                         el.rating++;
                                         el.save();
                                     });
@@ -165,7 +196,7 @@ router.route('/submitResult')
                             userModel.find({'email': { $in: winners}}, function (err, result) {
                                 if(err||result.length<1) res.status(400).send('Cant update ratings now');
                                 else{
-                                    results.forEach(function (el) {
+                                    result.forEach(function (el) {
                                         el.rating++;
                                         el.save();
                                     });

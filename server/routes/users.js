@@ -1,13 +1,15 @@
 let express = require('express');
 let crypto = require('crypto');
 let router = express.Router();
+let validator = require("email-validator");
 let multer = require('multer');
 let upload = multer({
     dest: 'public/users/'
 });
-let path = require("path")
+let path = require("path");
 let fs = require('fs');
 let userModel = require('../models/user.js');
+let permissionList = ['user', 'moderator', 'admin'];
 
 router.route('/')
     .get(function(req, res){
@@ -26,24 +28,28 @@ router.route('/')
         let password = req.body.password;
         let salt = crypto.createHash('sha256').update(email + 'WebOne').digest('hex');
         password = crypto.createHash('sha256').update(password + salt).digest('hex');
-        userModel.findOne({'email':email, 'password':password}, '-__v -password -salt -SID', function (err, user) {
-            if(user.SID){
-                user = JSON.parse(JSON.stringify(user));
-                user._id = undefined;
-                res.json(user);
-            }
-            else{
-                user.SID = crypto.createHash('sha256').update('Web' + salt + user._id + Date.now()).digest('hex');
-                user.save(function (err) {
-                    if(err) res.sendStatus(400);
-                    else{
-                        user = JSON.parse(JSON.stringify(user));
-                        user._id = undefined;
-                        res.json(user);
-                    }
-                })
-            }
-        });
+        if(validator.validate(email)){
+            userModel.findOne({'email':email, 'password':password}, '-__v -password -salt -SID', function (err, user) {
+                if(user.SID){
+                    user = JSON.parse(JSON.stringify(user));
+                    user._id = undefined;
+                    res.json(user);
+                }
+                else{
+                    user.SID = crypto.createHash('sha256').update('Web' + salt + user._id + Date.now()).digest('hex');
+                    user.save(function (err) {
+                        if(err) res.sendStatus(400);
+                        else{
+                            user = JSON.parse(JSON.stringify(user));
+                            user._id = undefined;
+                            res.json(user);
+                        }
+                    })
+                }
+            });
+        }else{
+            res.status(400).send('Bad email');
+        }
     });
 
 router.route('/register')
@@ -56,11 +62,15 @@ router.route('/register')
         let phone = req.body.phone;
         let salt = crypto.createHash('sha256').update(email + 'WebOne').digest('hex');
         password = crypto.createHash('sha256').update(password + salt).digest('hex');
-        let user = new userModel({email: email, trainer: trainer, password: password, salt: salt, info: info, fullname: fullname, phone: phone});
-        user.save(function (err) {
-            if(err) res.status(400).send('Cant register you know');
-            else res.sendStatus(200);
-        })
+        if(validator.validate(email)){
+            let user = new userModel({email: email, trainer: trainer, password: password, salt: salt, info: info, fullname: fullname, phone: phone});
+            user.save(function (err) {
+                if(err) res.status(400).send('Cant register you know');
+                else res.sendStatus(200);
+            })
+        }else {
+            res.status(400).send('Bad email');
+        }
     });
 
 router.route('/promote')
@@ -68,20 +78,24 @@ router.route('/promote')
         let promEmail = req.body.promemail;
         let perm = req.body.permission;
         let SID = req.body.SID;
-        userModel.findOne({'SID': SID}, function (err, person) {
-            if (err) res.status(400).send('Cant delete court now');
-            else {
-                if (person.permission === 'admin') {
-                    userModel.findOne({'email': promEmail}, function (err, user) {
-                        user.permission = perm;
-                        user.save(function (err) {
-                            if (err) res.sendStatus(400);
-                            else res.sendStatus(200);
+        if(validator.validate(promEmail)&&permissionList.indexOf(perm)!==-1){
+            userModel.findOne({'SID': SID}, function (err, person) {
+                if (err) res.status(400).send('Cant delete court now');
+                else {
+                    if (person.permission === 'admin') {
+                        userModel.findOne({'email': promEmail}, function (err, user) {
+                            user.permission = perm;
+                            user.save(function (err) {
+                                if (err) res.sendStatus(400);
+                                else res.sendStatus(200);
+                            });
                         });
-                    });
-                } else res.status(400).send('Not enough permission');
-            }
-        });
+                    } else res.status(400).send('Not enough permission');
+                }
+            });
+        } else {
+            res.status(400).send('Bad email or permission');
+        }
     });
 
 router.route('/top')

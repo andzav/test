@@ -27,7 +27,7 @@ let options = {
     poolSize: 10,
     bufferMaxEntries: 0
 };
-let uri = 'mongodb://heroku_9h8w2nr5:37cm6rs1clvgsnvdnrj1ti71fr@ds119675.mlab.com:19675/heroku_9h8w2nr5';
+let uri = process.env.MONGODB_URI || 'mongodb://localhost:27015/webone';
 mongoose.connect(uri, options);
 
 // REGISTER ROUTES -------------------------------
