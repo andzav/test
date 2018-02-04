@@ -21,7 +21,6 @@ app.use(express.static(path.join(__dirname, "public")));
 //CONNECTING TO DATABASE
 mongoose.Promise = global.Promise;
 let options = {
-    //useMongoClient: true,
     reconnectTries: Number.MAX_VALUE,
     reconnectInterval: 100,
     poolSize: 10,
@@ -33,7 +32,6 @@ mongoose.connect(uri, options);
 // REGISTER ROUTES -------------------------------
 let users = require('./server/routes/users');
 let courts = require('./server/routes/courts');
-//let tournaments = require('./server/routes/tournaments');
 let events = require('./server/routes/events');
 
 //Check if request is valid and parse numbers represented as string etc
@@ -81,7 +79,6 @@ app.use(modifyResponseBody);
 app.use('/api/users', users);
 app.use('/api/courts', courts);
 app.use('/api/events', events);
-//app.use('/api/tournaments', tournaments);
 
 // START THE SERVER -------------------------------
 app.listen(port);

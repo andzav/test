@@ -2,12 +2,6 @@ let express = require('express');
 let crypto = require('crypto');
 let router = express.Router();
 let validator = require("email-validator");
-// let multer = require('multer');
-// let upload = multer({
-//     dest: 'public/users/'
-// });
-// let path = require("path");
-// let fs = require('fs');
 let userModel = require('../models/user.js');
 let permissionList = ['user', 'moderator', 'admin'];
 
@@ -116,41 +110,5 @@ router.route('/top')
             else res.json(result);
         })
     });
-
-// router.post('/profileImg', upload.single('file'), function (req, res) {
-//     let SID = req.body.SID;
-//     console.log(req.body);
-//     userModel.findOne({
-//         'SID': SID,
-//     }, 'permission', function (err, person) {
-//         if (err||!person){
-//             res.status(400).send('Error while querying database');
-//         }
-//         else if (person) {
-//             if (person.permission === 'admin') {
-//                 if (req.file) {
-//                     console.log(req.file.originalname.split('.')[0].split('_').join(' '));
-//                     userModel.findOne({
-//                         fullname: req.file.originalname.split('.')[0].split('_').join(' ')
-//                     }, function (err, planet) {
-//                         if (err) res.status(400).send('Error while querying planet database');
-//                         else if (planet) {
-//                             let file = path.join(__dirname, '../../public/profiles', req.file.originalname);
-//                             console.log(file);
-//                             fs.rename(req.file.path, file, function (err) {
-//                                 if (err) {
-//                                     res.status(400).send(err);
-//                                 } else {
-//                                     res.sendStatus(200);
-//                                 }
-//                             });
-//                             console.log(req.protocol + '://' + req.hostname + '/profiles/' + req.file.originalname);
-//                         } else res.status(400).send('User with this name not found');
-//                     });
-//                 } else res.status(400).send('Please send file');
-//             } else res.status(400).send('Not enough permission');
-//         } else res.status(400).send('User not found');
-//     });
-// });
 
 module.exports = router;

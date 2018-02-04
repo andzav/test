@@ -2,12 +2,6 @@ let express = require('express');
 let router = express.Router();
 let courtModel = require('../models/court.js');
 let userModel = require('../models/user.js');
-// let multer = require('multer');
-// let upload = multer({
-//     dest: 'public/courts/'
-// });
-// let path = require("path")
-// let fs = require('fs');
 let courtTypes = ['tennis', 'football', 'basketball', 'badminton', 'stadium', 'volleyball'];
 
 router.route('/')
@@ -57,6 +51,8 @@ router.route('/')
                                 location: {x: info.location.x, y: info.location.y},
                                 type: info.type,
                                 region: info.region,
+                                info: info.info,
+                                preview_url: "https://maps.googleapis.com/maps/api/staticmap?center="+x+","+y+"&zoom=12&size=400x400&markers=color:red|"+x+","+y,
                                 working_hours: {start: info.working_hours.start, end: info.working_hours.end},
                                 rent_price: info.rent_price,
                                 num_people: info.num_people
@@ -81,18 +77,20 @@ router.route('/')
             else {
                 if (person.permission === 'admin' || person.permission === 'moderator') {
                     courtModel.find({'id': id}).limit(1).exec(function (err, court) {
-                        if (req.body.type) court.type = req.body.type;
-                        if (req.body.rent_price) court.rent_price = req.body.rent_price;
-                        if (req.body.num_people) court.num_people = req.body.num_people;
+                        if (req.body.type) court[0].type = req.body.type;
+                        if (req.body.rent_price) court[0].rent_price = req.body.rent_price;
+                        if (req.body.num_people) court[0].num_people = req.body.num_people;
+                        if (req.body.info) court[0].info = req.body.info;
                         if (req.body.working_hours && req.body.working_hours.start !== undefined && req.body.working_hours.end !== undefined && req.body.working_hours.start < req.body.working_hours.end) {
-                            court.working_hours.start = req.body.working_hours.start;
-                            court.working_hours.end = req.body.working_hours.end;
+                            court[0].working_hours.start = req.body.working_hours.start;
+                            court[0].working_hours.end = req.body.working_hours.end;
                         }
                         if (req.location && req.location.x !== undefined && req.location.y !== undefined) {
-                            court.location.x = req.location.x;
-                            court.location.y = req.location.y;
+                            court[0].location.x = req.location.x;
+                            court[0].location.y = req.location.y;
                         }
-                        court.save(function (err) {
+                        court.preview_url = "https://maps.googleapis.com/maps/api/staticmap?center="+court[0].x+","+court[0].y+"&zoom=12&size=400x400&markers=color:red|"+court[0].x+","+court[0].y;
+                            court[0].save(function (err) {
                             if (err) res.status(400).send("Error updating court info");
                             else res.sendStatus(200);
                         });
@@ -118,40 +116,5 @@ router.route('/')
             }
         })
     });
-
-// router.post('/courtImg', upload.single('file'), function (req, res) {
-//     console.log(req.files);
-//     console.log(req.file);
-//     let SID = req.body.SID;
-//     userModel.findOne({
-//         'SID': 'test',
-//     }, 'permission', function (err, person) {
-//         if (err) res.status(400).send('Error while querying database');
-//         else if (person) {
-//             if (person.permission === 'admin') {
-//                 if (req.file) {
-//                     courtModel.findOne({
-//                         id: req.file.originalname.split('.')[0]
-//                     }, function (err, court) {
-//                         if (err) res.status(400).send('Error while querying court database');
-//                         else if (court) {
-//                             let file = path.join(__dirname, '../../public/courts', req.file.originalname);
-//                             console.log(file);
-//                             fs.rename(req.file.path, file, function (err) {
-//                                 if (err) {
-//                                     console.log(err);
-//                                     res.status(400).send(err);
-//                                 } else {
-//                                     res.sendStatus(200);
-//                                 }
-//                             });
-//                             console.log(req.protocol + '://' + req.hostname + '/courts/' + req.file.originalname);
-//                         } else res.status(400).send('Court not found');
-//                     });
-//                 } else res.status(400).send('Please send file');
-//             } else res.status(400).send('Not enough permission');
-//         } else res.status(400).send('User not found');
-//     });
-// });
 
 module.exports = router;

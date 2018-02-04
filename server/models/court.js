@@ -8,6 +8,8 @@ let courtSchema = new Schema({
     id: {type: Number, index: true, unique: true},
     location: {x: {type: Number, default: 0.0}, y: {type: Number, default: 0.0}},
     region: String,
+    info: String,
+    preview_url: String,
     type: {type: String, default: 'tennis', enum: courtTypes},
     working_hours: {start: Number, end: Number},
     rent_price: {type: Number, default: 0.0},

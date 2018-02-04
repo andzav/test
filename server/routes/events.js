@@ -69,7 +69,7 @@ router.route('/')
                                             ]
                                         }, function (err, count) {
                                             if (count === 0) {
-                                                if (dStart.getHours() < event.court.working_hours.start || dEnd.getHours() > event.court.working_hours.end) {
+                                                if (dStart<Date.now() || dEnd<Date.now() || dEnd<dStart || dStart.getHours() < event.court.working_hours.start || dEnd.getHours() > event.court.working_hours.end) {
                                                     res.status(400).send('Court is closed in selected hours. Please reselect them');
                                                 } else {
                                                     event.date.start = dStart;
