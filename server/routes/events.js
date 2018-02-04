@@ -6,7 +6,7 @@ let eventModel = require('../models/event.js');
 let userModel = require('../models/user.js');
 let courtModel = require('../models/court.js');
 
-let smtpTransport = nodemailer.createTransport("SMTP", {
+let smtpTransport = nodemailer.createTransport({
     service: "Gmail",
     auth: {
         user: "speedspasedeliveries@gmail.com",
