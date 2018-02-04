@@ -33,8 +33,8 @@ router.route('/')
             $lte: req.query.rpt
         };
         if (req.query.x !== undefined && req.query.y !== undefined) {
-            query.court.location.x = {$gte: req.query.x - 0.5, $lte: req.query.x + 0.5};
-            query.court.location.y = {$gte: req.query.y - 0.5, $lte: req.query.y + 0.5};
+            query.court.location.x = {$gte: req.query.x - 0.005, $lte: req.query.x + 0.005};
+            query.court.location.y = {$gte: req.query.y - 0.005, $lte: req.query.y + 0.005};
         }
         eventModel.find(query, '-_id -__v', function (err, result) {
             if (err) res.status(400).send('Error while finding events: ' + err);
@@ -83,7 +83,7 @@ router.route('/')
                                                                 let mailOptions = {
                                                                     from: "speedspasedeliveries@gmail.com",
                                                                     to: el,
-                                                                    subject: 'You have been invited to event on passion.com',
+                                                                    subject: 'You have been invited to sport event',
                                                                     text: 'You have been invited to event hosted by ' + person.email +
                                                                     (event.code.length > 0 ? '. Code to find event is ' + event.code : '. Feel free to visit')
                                                                 };
@@ -108,7 +108,7 @@ router.route('/')
                                                                 let mailOptions = {
                                                                     from: "speedspasedeliveries@gmail.com",
                                                                     to: el,
-                                                                    subject: 'You have been invited to event on passion.com',
+                                                                    subject: 'You have been invited to sport event',
                                                                     text: 'You have been invited to event hosted by ' + person.email +
                                                                     (event.code.length > 0 ? '. Code to find event is ' + event.code : '. Feel free to visit')
                                                                 };

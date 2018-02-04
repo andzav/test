@@ -120,9 +120,11 @@ router.route('/')
     });
 
 // router.post('/courtImg', upload.single('file'), function (req, res) {
+//     console.log(req.files);
+//     console.log(req.file);
 //     let SID = req.body.SID;
 //     userModel.findOne({
-//         'SID': SID,
+//         'SID': 'test',
 //     }, 'permission', function (err, person) {
 //         if (err) res.status(400).send('Error while querying database');
 //         else if (person) {

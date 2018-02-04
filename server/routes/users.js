@@ -119,13 +119,17 @@ router.route('/top')
 
 // router.post('/profileImg', upload.single('file'), function (req, res) {
 //     let SID = req.body.SID;
+//     console.log(req.body);
 //     userModel.findOne({
 //         'SID': SID,
 //     }, 'permission', function (err, person) {
-//         if (err||!person) res.status(400).send('Error while querying database');
+//         if (err||!person){
+//             res.status(400).send('Error while querying database');
+//         }
 //         else if (person) {
 //             if (person.permission === 'admin') {
 //                 if (req.file) {
+//                     console.log(req.file.originalname.split('.')[0].split('_').join(' '));
 //                     userModel.findOne({
 //                         fullname: req.file.originalname.split('.')[0].split('_').join(' ')
 //                     }, function (err, planet) {
