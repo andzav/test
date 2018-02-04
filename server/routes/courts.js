@@ -91,7 +91,7 @@ router.route('/')
                                 court[0].location.x = req.location.x;
                                 court[0].location.y = req.location.y;
                             }
-                            court[0].preview_url = "https://maps.googleapis.com/maps/api/staticmap?center="+court[0].x+","+court[0].y+"&zoom=12&size=400x400&markers=color:red|"+court[0].x+","+court[0].y;
+                            court[0].preview_url = "https://maps.googleapis.com/maps/api/staticmap?center="+court[0].location.x+","+court[0].location.y+"&zoom=12&size=400x400&markers=color:red|"+court[0].location.x+","+court[0].location.y;
                             court[0].save(function (err) {
                                 if (err) res.status(400).send("Error updating court info");
                                 else res.sendStatus(200);
