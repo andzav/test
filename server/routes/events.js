@@ -9,8 +9,8 @@ let courtModel = require('../models/court.js');
 let smtpTransport = nodemailer.createTransport({
     service: "Gmail",
     auth: {
-        user: process.env.service_email,
-        pass: process.env.service_password
+        user: "speedspasedeliveries@gmail.com",
+        pass: "leyla123"
     }
 });
 
@@ -77,11 +77,11 @@ router.route('/')
                                                     info.participants.unshift(person.email);
                                                     if (info.participants.length > result[0].num_people) {
                                                         let participants = info.participants.slice(0, result[0].num_people);
-                                                        event.entry_fee += event.court.rent_price / (participants.length > 0 ? participants.length : 1);
+                                                        event.entry_fee += event.court.rent_price / (participants.length > 1 ? participants.length : 1);
                                                         event.participants = participants.map(function (el, index) {
                                                             if (validator.validate(el)) {
                                                                 let mailOptions = {
-                                                                    from: process.env.service_email,
+                                                                    from: "speedspasedeliveries@gmail.com",
                                                                     to: el,
                                                                     subject: 'You have been invited to event on passion.com',
                                                                     text: 'You have been invited to event hosted by ' + person.email +
@@ -102,11 +102,11 @@ router.route('/')
                                                             else res.status(200).send("Some people were removed due to place limitations");
                                                         });
                                                     } else {
-                                                        event.entry_fee += event.court.rent_price / (info.participants.length > 0 ? info.participants.length : 1);
+                                                        event.entry_fee += event.court.rent_price / (info.participants.length > 1 ? info.participants.length : 1);
                                                         event.participants = info.participants.map(function (el, index) {
                                                             if (validator.validate(el)) {
                                                                 let mailOptions = {
-                                                                    from: process.env.service_email,
+                                                                    from: "speedspasedeliveries@gmail.com",
                                                                     to: el,
                                                                     subject: 'You have been invited to event on passion.com',
                                                                     text: 'You have been invited to event hosted by ' + person.email +
