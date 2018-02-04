@@ -185,7 +185,10 @@ router.route('/submitResult')
                         event[0].result.team2 = req.body.score2 ? req.body.score2 : 0;
                         if (req.body.score1 > req.body.score2) {
                             let winners = event[0].participants.find(x => x.team === true);
-                            userModel.find({'email': {$in: winners}}, function (err, result) {
+                            let mailArr = winners.map(function (el) {
+                                return el.player;
+                            });
+                            userModel.find({'email': {$in: mailArr}}, function (err, result) {
                                 if (err || result.length < 1){
                                     console.log(err);
                                     res.status(400).send('Cant update ratings now');
@@ -203,7 +206,10 @@ router.route('/submitResult')
                             })
                         } else if (req.body.score1 < req.body.score2) {
                             let winners = event[0].participants.find(x => x.team === false);
-                            userModel.find({'email': {$in: winners}}, function (err, result) {
+                            let mailArr = winners.map(function (el) {
+                                return el.player;
+                            });
+                            userModel.find({'email': {$in: mailArr}}, function (err, result) {
                                 if (err || result.length < 1){
                                     console.log(err);
                                     res.status(400).send('Cant update ratings now');
