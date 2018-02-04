@@ -85,7 +85,7 @@ router.route('/')
                                                                     to: el,
                                                                     subject: 'You have been invited to event on passion.com',
                                                                     text: 'You have been invited to event hosted by ' + person.email +
-                                                                        ( event.code.length>0 ? '. Code to find event is '+event.code : '. Feel free to visit')
+                                                                    (event.code.length > 0 ? '. Code to find event is ' + event.code : '. Feel free to visit')
                                                                 };
 
                                                                 smtpTransport.sendMail(mailOptions, (err) => {
@@ -110,7 +110,7 @@ router.route('/')
                                                                     to: el,
                                                                     subject: 'You have been invited to event on passion.com',
                                                                     text: 'You have been invited to event hosted by ' + person.email +
-                                                                    ( event.code.length>0 ? '. Code to find event is '+event.code : '. Feel free to visit')
+                                                                    (event.code.length > 0 ? '. Code to find event is ' + event.code : '. Feel free to visit')
                                                                 };
 
                                                                 smtpTransport.sendMail(mailOptions, (err) => {
@@ -203,7 +203,7 @@ router.route('/submitResult')
                                 return el.player;
                             });
                             userModel.find({'email': {$in: mailArr}}, function (err, result) {
-                                if (err || result.length < 1){
+                                if (err || result.length < 1) {
                                     console.log(err);
                                     res.status(400).send('Cant update ratings now');
                                 }
@@ -223,7 +223,7 @@ router.route('/submitResult')
                                 return el.player;
                             });
                             userModel.find({'email': {$in: mailArr}}, function (err, result) {
-                                if (err || result.length < 1){
+                                if (err || result.length < 1) {
                                     console.log(err);
                                     res.status(400).send('Cant update ratings now');
                                 }

@@ -18,7 +18,7 @@ router.route('/')
             query.email = req.query.email;
         }
         else req.query.trainer = true;
-        userModel.find(query, '-_id -__v -password -salt -permision -SID', function (err, users) {
+        userModel.find(query, '-_id -__v -password -salt -permission -SID', function (err, users) {
             if (err) res.status(400).send('Error getting users list');
             else res.json(users);
         })
