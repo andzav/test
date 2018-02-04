@@ -21,7 +21,7 @@ router.route('/')
         if (req.query.code) query.code = req.query.code;
         else req.query.code = '';
 
-        if (req.query.email) query.participants.player = req.query.email;
+        if (req.query.email) query['participants.player'] = req.query.email;
 
         if (req.query.region) query.court.region = req.query.region;
 
