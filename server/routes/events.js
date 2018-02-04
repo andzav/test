@@ -102,7 +102,7 @@ router.route('/')
                                                             else res.status(200).send("Some people were removed due to place limitations");
                                                         });
                                                     } else {
-                                                        event.entry_fee += event.court.rent_price / (participants.length > 0 ? participants.length : 1);
+                                                        event.entry_fee += event.court.rent_price / (info.participants.length > 0 ? info.participants.length : 1);
                                                         event.participants = info.participants.map(function (el, index) {
                                                             if (validator.validate(el)) {
                                                                 let mailOptions = {
