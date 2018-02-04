@@ -77,7 +77,7 @@ router.route('/')
             else {
                 if (person.permission === 'admin' || person.permission === 'moderator') {
                     courtModel.find({'id': id}).limit(1).exec(function (err, court) {
-                        if(count.length>0){
+                        if(court.length>0){
                             if (req.body.type) court[0].type = req.body.type;
                             if (req.body.rent_price) court[0].rent_price = req.body.rent_price;
                             if (req.body.num_people) court[0].num_people = req.body.num_people;
