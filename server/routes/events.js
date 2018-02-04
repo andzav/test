@@ -89,7 +89,7 @@ router.route('/')
                                                                 };
 
                                                                 smtpTransport.sendMail(mailOptions, (err) => {
-                                                                    if (err) console.log(error);
+                                                                    if (err) console.log(err);
                                                                 });
                                                             }
 
@@ -114,7 +114,7 @@ router.route('/')
                                                                 };
 
                                                                 smtpTransport.sendMail(mailOptions, (err) => {
-                                                                    if (err) console.log(error);
+                                                                    if (err) console.log(err);
                                                                 });
                                                             }
                                                             let teamN = index % 2 === 0;
