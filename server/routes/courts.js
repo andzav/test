@@ -2,30 +2,33 @@ let express = require('express');
 let router = express.Router();
 let courtModel = require('../models/court.js');
 let userModel = require('../models/user.js');
-let multer = require('multer');
-let upload = multer({
-    dest: 'public/courts/'
-});
-let path = require("path")
-let fs = require('fs');
+// let multer = require('multer');
+// let upload = multer({
+//     dest: 'public/courts/'
+// });
+// let path = require("path")
+// let fs = require('fs');
 let courtTypes = ['tennis', 'football', 'basketball', 'badminton', 'stadium', 'volleyball'];
 
 router.route('/')
-    .get(function(req, res){
+    .get(function (req, res) {
         let query = {};
-        if(req.query.type!==undefined) query.type = req.query.type;
-        if(req.query.whs!==undefined) query.working_hours.start = {$gte: req.query.whs};
-        if(req.query.whe!==undefined) query.working_hours.end = {$lte: req.query.whe};
-        if(req.query.rpf!==undefined&&req.query.rpt!==undefined) query.rent_price = {$gte: req.query.rpf, $lte: req.query.rpt};
-        if(req.query.x!==undefined&&req.query.y!==undefined){
-            query.location.x = {$gte: req.query.x-0.5, $lte: req.query.x+0.5};
-            query.location.x = {$gte: req.query.y-0.5, $lte: req.query.y+0.5};
+        if (req.query.type !== undefined) query.type = req.query.type;
+        if (req.query.whs !== undefined) query.working_hours.start = {$gte: req.query.whs};
+        if (req.query.whe !== undefined) query.working_hours.end = {$lte: req.query.whe};
+        if (req.query.rpf !== undefined && req.query.rpt !== undefined) query.rent_price = {
+            $gte: req.query.rpf,
+            $lte: req.query.rpt
+        };
+        if (req.query.x !== undefined && req.query.y !== undefined) {
+            query.location.x = {$gte: req.query.x - 0.5, $lte: req.query.x + 0.5};
+            query.location.x = {$gte: req.query.y - 0.5, $lte: req.query.y + 0.5};
         }
-        if(req.query.region!==undefined){
+        if (req.query.region !== undefined) {
             query.region = req.query.region;
         }
         courtModel.find(query, '-_id -__v', function (err, result) {
-            if (err) res.status(400).send('Error while finding places: '+err);
+            if (err) res.status(400).send('Error while finding places: ' + err);
             else res.json(result);
         });
     })
@@ -35,7 +38,7 @@ router.route('/')
         userModel.findOne({'SID': SID}, function (err, person) {
             if (err) res.status(400).send('Cant delete court now');
             else {
-                if (person!== null && (person.permission === 'admin' || person.permission === 'moderator')) {
+                if (person !== null && (person.permission === 'admin' || person.permission === 'moderator')) {
                     if (info !== undefined || info.location !== undefined || info.working_hours !== undefined) {
                         if (info.location.x === undefined || info.location.y === undefined) {
                             res.status(400).send("Please specify coordinates");
@@ -74,7 +77,7 @@ router.route('/')
         let id = req.body.id;
         let SID = req.body.SID;
         userModel.findOne({'SID': SID}, function (err, person) {
-            if (err||!person) res.status(400).send('Cant delete court now');
+            if (err || !person) res.status(400).send('Cant delete court now');
             else {
                 if (person.permission === 'admin' || person.permission === 'moderator') {
                     courtModel.find({'id': id}).limit(1).exec(function (err, court) {
@@ -102,16 +105,16 @@ router.route('/')
         let id = req.body.id;
         let SID = req.body.SID;
         userModel.findOne({'SID': SID}, function (err, person) {
-            if(err||!person) res.status(400).send('Cant delete court now');
-            else{
-                if(person.permission==='admin'||person.permission==='moderator'){
-                    if(id && id>0){
-                        courtModel.findOneAndRemove({'id':id}, function (err) {
-                            if (err) res.status(400).send('Error while deleting place: '+err);
+            if (err || !person) res.status(400).send('Cant delete court now');
+            else {
+                if (person.permission === 'admin' || person.permission === 'moderator') {
+                    if (id && id > 0) {
+                        courtModel.findOneAndRemove({'id': id}, function (err) {
+                            if (err) res.status(400).send('Error while deleting place: ' + err);
                             else res.sendStatus(200);
                         })
                     }
-                }else res.status(400).send('Not enough permission');
+                } else res.status(400).send('Not enough permission');
             }
         })
     });

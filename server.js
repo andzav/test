@@ -14,7 +14,7 @@ let port = process.env.PORT || 8080;
 app.use(cors());
 app.use(helmet());
 app.use(morgan('tiny'));
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -38,14 +38,14 @@ let events = require('./server/routes/events');
 
 //Check if request is valid and parse numbers represented as string etc
 app.use(function (err, req, res, next) {
-    if(err) res.status(400).send('Bad request body');
+    if (err) res.status(400).send('Bad request body');
     else next();
 });
-app.all('/*', function(req, res, next) {
-    if(Object.keys(req.body).length !== 0){
+app.all('/*', function (req, res, next) {
+    if (Object.keys(req.body).length !== 0) {
         req.body = autoParse(req.body);
     }
-    if(Object.keys(req.query).length !== 0){
+    if (Object.keys(req.query).length !== 0) {
         req.query = autoParse(req.query);
     }
     next();
@@ -55,14 +55,14 @@ app.all('/*', function(req, res, next) {
 function modifyResponseBody(req, res, next) {
     let oldSend = res.send;
 
-    res.send = function(data){
-        if(typeof autoParse(data) === 'string' && data!=='OK'){
+    res.send = function (data) {
+        if (typeof autoParse(data) === 'string' && data !== 'OK') {
             let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
-            console.log('REQUEST FROM IP ( ' +ip+ ' ):');
-            if(Object.keys(req.body).length !== 0){
+            console.log('REQUEST FROM IP ( ' + ip + ' ):');
+            if (Object.keys(req.body).length !== 0) {
                 console.log(req.body);
             }
-            if(Object.keys(req.query).length !== 0){
+            if (Object.keys(req.query).length !== 0) {
                 console.log(req.query);
             }
             console.log();
@@ -70,11 +70,12 @@ function modifyResponseBody(req, res, next) {
             console.log(data);
             console.log();
         }
-        res.send=oldSend;
+        res.send = oldSend;
         oldSend.apply(res, arguments);
-    }
+    };
     next();
 }
+
 app.use(modifyResponseBody);
 
 app.use('/api/users', users);
