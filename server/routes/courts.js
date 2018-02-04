@@ -21,7 +21,7 @@ router.route('/')
         if (req.query.region !== undefined) {
             query.region = req.query.region;
         }
-        courtModel.find(query, '-_id -__v', function (err, result) {
+        courtModel.find(query, '-_id -__v', {sort:'id'}, function (err, result) {
             if (err) res.status(400).send('Error while finding places: ' + err);
             else res.json(result);
         });
@@ -52,7 +52,7 @@ router.route('/')
                                 type: info.type,
                                 region: info.region,
                                 info: info.info,
-                                preview_url: "https://maps.googleapis.com/maps/api/staticmap?center="+x+","+y+"&zoom=12&size=400x400&markers=color:red|"+x+","+y,
+                                preview_url: "https://maps.googleapis.com/maps/api/staticmap?center="+info.location.x+","+info.location.y+"&zoom=12&size=400x400&markers=color:red|"+info.location.x+","+info.location.y,
                                 working_hours: {start: info.working_hours.start, end: info.working_hours.end},
                                 rent_price: info.rent_price,
                                 num_people: info.num_people
@@ -83,6 +83,7 @@ router.route('/')
                             if (req.body.rent_price) court[0].rent_price = req.body.rent_price;
                             if (req.body.num_people) court[0].num_people = req.body.num_people;
                             if (req.body.info) court[0].info = req.body.info;
+                            if (req.body.caption) court[0].caption = req.body.caption;
                             if (req.body.working_hours && req.body.working_hours.start !== undefined && req.body.working_hours.end !== undefined && req.body.working_hours.start < req.body.working_hours.end) {
                                 court[0].working_hours.start = req.body.working_hours.start;
                                 court[0].working_hours.end = req.body.working_hours.end;
@@ -96,6 +97,8 @@ router.route('/')
                                 if (err) res.status(400).send("Error updating court info");
                                 else res.sendStatus(200);
                             });
+                        }else{
+                            res.sendStatus(400);
                         }
                     });
                 } else res.status(400).send('Not enough permission');

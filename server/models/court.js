@@ -10,6 +10,7 @@ let courtSchema = new Schema({
     region: String,
     info: String,
     preview_url: String,
+    caption: String,
     type: {type: String, default: 'tennis', enum: courtTypes},
     working_hours: {start: Number, end: Number},
     rent_price: {type: Number, default: 0.0},
