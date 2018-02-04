@@ -157,8 +157,7 @@ router.route('/join')
             from: "speedspasedeliveries@gmail.com",
             to: "yura.zahreva@gmail.com",
             subject: 'You have been invited to sport event ' + caption,
-            text: 'You have been invited to event: ' + info +
-            (event.code.length > 0 ? '. Code to find event is ' + event.code : '. Feel free to visit')
+            text: 'You have been invited to event: ' + info + '. Feel free to visit'
         };
 
         smtpTransport.sendMail(mailOptions, (err) => {
