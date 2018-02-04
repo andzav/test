@@ -77,23 +77,25 @@ router.route('/')
             else {
                 if (person.permission === 'admin' || person.permission === 'moderator') {
                     courtModel.find({'id': id}).limit(1).exec(function (err, court) {
-                        if (req.body.type) court[0].type = req.body.type;
-                        if (req.body.rent_price) court[0].rent_price = req.body.rent_price;
-                        if (req.body.num_people) court[0].num_people = req.body.num_people;
-                        if (req.body.info) court[0].info = req.body.info;
-                        if (req.body.working_hours && req.body.working_hours.start !== undefined && req.body.working_hours.end !== undefined && req.body.working_hours.start < req.body.working_hours.end) {
-                            court[0].working_hours.start = req.body.working_hours.start;
-                            court[0].working_hours.end = req.body.working_hours.end;
-                        }
-                        if (req.location && req.location.x !== undefined && req.location.y !== undefined) {
-                            court[0].location.x = req.location.x;
-                            court[0].location.y = req.location.y;
-                        }
-                        court.preview_url = "https://maps.googleapis.com/maps/api/staticmap?center="+court[0].x+","+court[0].y+"&zoom=12&size=400x400&markers=color:red|"+court[0].x+","+court[0].y;
+                        if(count.length>0){
+                            if (req.body.type) court[0].type = req.body.type;
+                            if (req.body.rent_price) court[0].rent_price = req.body.rent_price;
+                            if (req.body.num_people) court[0].num_people = req.body.num_people;
+                            if (req.body.info) court[0].info = req.body.info;
+                            if (req.body.working_hours && req.body.working_hours.start !== undefined && req.body.working_hours.end !== undefined && req.body.working_hours.start < req.body.working_hours.end) {
+                                court[0].working_hours.start = req.body.working_hours.start;
+                                court[0].working_hours.end = req.body.working_hours.end;
+                            }
+                            if (req.location && req.location.x !== undefined && req.location.y !== undefined) {
+                                court[0].location.x = req.location.x;
+                                court[0].location.y = req.location.y;
+                            }
+                            court.preview_url = "https://maps.googleapis.com/maps/api/staticmap?center="+court[0].x+","+court[0].y+"&zoom=12&size=400x400&markers=color:red|"+court[0].x+","+court[0].y;
                             court[0].save(function (err) {
-                            if (err) res.status(400).send("Error updating court info");
-                            else res.sendStatus(200);
-                        });
+                                if (err) res.status(400).send("Error updating court info");
+                                else res.sendStatus(200);
+                            });
+                        }
                     });
                 } else res.status(400).send('Not enough permission');
             }
