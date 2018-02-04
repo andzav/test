@@ -79,9 +79,7 @@ router.route('/')
                                                         let participants = info.participants.slice(0, result[0].num_people);
                                                         event.entry_fee += event.court.rent_price / (participants.length > 0 ? participants.length : 1);
                                                         event.participants = participants.map(function (el, index) {
-                                                            console.log(el);
                                                             if (validator.validate(el)) {
-                                                                console.log('Sendong invite');
                                                                 let mailOptions = {
                                                                     from: process.env.service_email,
                                                                     to: el,
@@ -104,7 +102,21 @@ router.route('/')
                                                             else res.status(200).send("Some people were removed due to place limitations");
                                                         });
                                                     } else {
+                                                        event.entry_fee += event.court.rent_price / (participants.length > 0 ? participants.length : 1);
                                                         event.participants = info.participants.map(function (el, index) {
+                                                            if (validator.validate(el)) {
+                                                                let mailOptions = {
+                                                                    from: process.env.service_email,
+                                                                    to: el,
+                                                                    subject: 'You have been invited to event on passion.com',
+                                                                    text: 'You have been invited to event hosted by ' + person.email +
+                                                                    ( event.code.length>0 ? 'Code to find event is '+event.code : 'Feel free to visit')
+                                                                };
+
+                                                                smtpTransport.sendMail(mailOptions, (err) => {
+                                                                    if (err) console.log(error);
+                                                                });
+                                                            }
                                                             let teamN = index % 2 === 0;
                                                             let hostS = index === 0;
                                                             return {player: el, team: teamN, host: hostS};
