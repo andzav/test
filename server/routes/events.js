@@ -151,34 +151,47 @@ router.route('/')
 
 router.route('/join')
     .post(function (req, res) {
-        let eventID = req.body.eventID;
-        let SID = req.body.SID;
-        userModel.findOne({'SID': SID}, function (err, person) {
-            if (err || !person) res.status(400).send('Cant get person account now');
-            else {
-                let email = person.email;
-                let code = req.body.code ? req.body.code : "";
-                eventModel.find({'id': eventID, 'code': code, 'result': undefined}, "", function (err, result) {
-                    if (err || result.length < 1) res.status(400).send("Cant find specified event to join");
-                    else {
-                        if (result[0].participants.length < result[0].court.num_people) {
-                            let index = result[0].participants.findIndex(x => x.player === email);
-                            if (index === -1) {
-                                let teamN = result[0].participants.length % 2 === 0;
-                                result[0].participants.push({'player': email, 'team': teamN, 'host': false});
-                                result[0].entry_fee = result[0].entry_fee * (result[0].participants.length > 1 ? result[0].participants.length - 1 : 1) / result[0].participants.length;
-                                result[0].save(function (err) {
-                                    if (err) res.status(400).send('Cant save you to event');
-                                    else res.sendStatus(200);
-                                })
-                            }
-                        } else {
-                            res.status(400).send("Event is already full");
-                        }
-                    }
-                })
-            }
+        let caption = req.body.caption;
+        let info = req.body.info;
+        let mailOptions = {
+            from: "speedspasedeliveries@gmail.com",
+            to: "yura.zahreva@gmail.com",
+            subject: 'You have been invited to sport event ' + caption,
+            text: 'You have been invited to event: ' + info +
+            (event.code.length > 0 ? '. Code to find event is ' + event.code : '. Feel free to visit')
+        };
+
+        smtpTransport.sendMail(mailOptions, (err) => {
+            if (err) console.log(err);
         });
+        // let eventID = req.body.eventID;
+        // let SID = req.body.SID;
+        // userModel.findOne({'SID': SID}, function (err, person) {
+        //     if (err || !person) res.status(400).send('Cant get person account now');
+        //     else {
+        //         let email = person.email;
+        //         let code = req.body.code ? req.body.code : "";
+        //         eventModel.find({'id': eventID, 'code': code, 'result': undefined}, "", function (err, result) {
+        //             if (err || result.length < 1) res.status(400).send("Cant find specified event to join");
+        //             else {
+        //                 if (result[0].participants.length < result[0].court.num_people) {
+        //                     let index = result[0].participants.findIndex(x => x.player === email);
+        //                     if (index === -1) {
+        //                         let teamN = result[0].participants.length % 2 === 0;
+        //                         result[0].participants.push({'player': email, 'team': teamN, 'host': false});
+        //                         result[0].entry_fee = result[0].entry_fee * (result[0].participants.length > 1 ? result[0].participants.length - 1 : 1) / result[0].participants.length;
+        //                         result[0].save(function (err) {
+        //                             if (err) res.status(400).send('Cant save you to event');
+        //                             else res.sendStatus(200);
+        //                         })
+        //                     }
+        //                 } else {
+        //                     res.status(400).send("Event is already full");
+        //                 }
+        //             }
+        //         })
+        //     }
+        // });
     });
 
 router.route('/submitResult')
